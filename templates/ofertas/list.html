@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Ofertas Académicas</h1>
+            <p class="text-sm text-slate-500 mt-1">Planes de estudio, cursos y diplomados disponibles.</p>
+        </div>
+        <a href="{{ url_for('ofertas.nueva') }}" class="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-md transition">+ Nueva Oferta</a>
+    </div>
+
+    <div class="bg-white rounded-2xl card-shadow border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold tracking-wider">
+                        <th class="p-4">ID</th>
+                        <th class="p-4">Oferta Académica</th>
+                        <th class="p-4">Tipo</th>
+                        <th class="p-4">Precio Total ($)</th>
+                        <th class="p-4">Cuotas</th>
+                        <th class="p-4 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    {% for o in ofertas %}
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-4 font-semibold text-slate-900">#{{ o.id }}</td>
+                        <td class="p-4 font-medium">{{ o.oferta_academica }}</td>
+                        <td class="p-4"><span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-bold">{{ o.tipo }}</span></td>
+                        <td class="p-4 font-bold text-emerald-600">${{ "%.2f"|format(o.precio_en_divisas) }}</td>
+                        <td class="p-4 text-slate-500">{{ o.nro_partes_cuotas }} x ${{ "%.2f"|format(o.cada_una_de_en_divisas) }}</td>
+                        <td class="p-4 text-right space-x-2">
+                            <a href="{{ url_for('ofertas.editar', id=o.id) }}" class="inline-block px-3 py-1.5 bg-amber-100 text-amber-800 rounded-lg text-xs font-semibold hover:bg-amber-200 transition">Editar</a>
+                            <form action="{{ url_for('ofertas.eliminar', id=o.id) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta oferta académica?');">
+                                <button type="submit" class="px-3 py-1.5 bg-rose-100 text-rose-800 rounded-lg text-xs font-semibold hover:bg-rose-200 transition">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="p-8 text-center text-slate-400">No hay ofertas académicas registradas.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

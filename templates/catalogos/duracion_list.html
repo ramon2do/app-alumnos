@@ -1,0 +1,75 @@
+{% extends "base.html" %} {% block content %}
+<div class="space-y-6">
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+  >
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+        Gestión de Duración
+      </h1>
+      <p class="text-sm text-slate-500 mt-1">
+        Listado de duraciones de los programas académicos.
+      </p>
+    </div>
+    <a
+      href="{{ url_for('catalogos.duracion_nuevo') }}"
+      class="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-md transition"
+      >+ Nueva Duración</a
+    >
+  </div>
+
+  <div
+    class="bg-white rounded-2xl card-shadow border border-slate-200 overflow-hidden"
+  >
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-sm">
+        <thead>
+          <tr
+            class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold tracking-wider"
+          >
+            <th class="p-4">ID</th>
+            <th class="p-4">Duración</th>
+            <th class="p-4 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          {% for d in duraciones %}
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="p-4 font-semibold text-slate-900">#{{ d.Id }}</td>
+            <td class="p-4 font-medium">{{ d.Duracion }}</td>
+            <td class="p-4 text-right space-x-2">
+              <a
+                href="{{ url_for('catalogos.duracion_editar', id=d.Id) }}"
+                class="inline-block px-3 py-1.5 bg-amber-100 text-amber-800 rounded-lg text-xs font-semibold hover:bg-amber-200 transition"
+                >Editar</a
+              >
+              <form
+                action="{{ url_for('catalogos.duracion_eliminar', id=d.Id) }}"
+                method="POST"
+                class="inline-block"
+                onsubmit="
+                  return confirm('¿Estás seguro de eliminar esta duración?');
+                "
+              >
+                <button
+                  type="submit"
+                  class="px-3 py-1.5 bg-rose-100 text-rose-800 rounded-lg text-xs font-semibold hover:bg-rose-200 transition"
+                >
+                  Eliminar
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" class="p-8 text-center text-slate-400">
+              No hay duraciones registradas.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <div>
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+            {{ 'Editar Inscripción #' ~ inscripcion.id if inscripcion else 'Nueva Inscripción Académica' }}
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">Busca al alumno por cédula, selecciona la oferta, asigna docente y parámetros de tiempo.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl card-shadow border border-slate-200 p-6 sm:p-8">
+        <form method="POST" class="space-y-6" onsubmit="return confirm('{{ '¿Deseas guardar los cambios de esta inscripción?' if inscripcion else '¿Deseas procesar y confirmar esta inscripción?' }}');">
+            
+            <!-- Campo oculto para guardar el ID del alumno -->
+            <input type="hidden" name="id_alumno" id="id_alumno" value="{{ inscripcion.id_alumno if inscripcion else (alumno_actual.id if alumno_actual else '') }}" required>
+
+            <!-- 1. BÚSQUEDA DE ALUMNO POR CÉDULA -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">1. Buscar Alumno por Cédula (Presione Enter)</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <select id="tipo_cedula" class="bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
+                        <option value="V" {% if alumno_actual and alumno_actual.tipo_cedula == 'V' %}selected{% endif %}>V</option>
+                        <option value="E" {% if alumno_actual and alumno_actual.tipo_cedula == 'E' %}selected{% endif %}>E</option>
+                    </select>
+                    <div class="col-span-2">
+                        <input type="text" id="nro_cedula" value="{{ alumno_actual.nro_cedula if alumno_actual else '' }}" placeholder="Ingrese número y presione Enter..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <!-- Tarjeta donde se despliega la información del alumno (Visible si hay alumno actual o vía AJAX) -->
+                <div id="info_alumno" class="flex items-center space-x-4 p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 {% if not alumno_actual %}hidden{% endif %}">
+                    <img id="alumno_foto" src="{{ alumno_actual.foto_carnet if alumno_actual and alumno_actual.foto_carnet else '/static/uploads/default.png' }}" alt="Foto" class="w-12 h-12 rounded-full object-cover border border-indigo-200">
+                    <div>
+                        <p class="text-sm font-bold text-indigo-900" id="alumno_nombre">{% if alumno_actual %}{{ alumno_actual.nombre_completo }}{% endif %}</p>
+                        <p class="text-xs text-indigo-700">📧 <span id="alumno_correo">{% if alumno_actual %}{{ alumno_actual.correo.value }}{% endif %}</span> | 📱 <span id="alumno_whatsapp">{% if alumno_actual %}{{ alumno_actual.whatsapp.value }}{% endif %}</span></p>
+                    </div>
+                    <span class="ml-auto bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">✔ Alumno Verificado</span>
+                </div>
+                <p id="error_alumno" class="text-xs text-rose-600 hidden">Alumno no encontrado en el sistema.</p>
+            </div>
+
+            <!-- 2. SELECCIÓN DE OFERTA ACADÉMICA -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">2. Seleccionar Oferta Académica</label>
+                <select name="id_oferta" id="select_oferta" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
+                    <option value="" disabled {% if not inscripcion %}selected{% endif %}>-- Seleccione una oferta --</option>
+                    {% for o in ofertas %}
+                    <option value="{{ o.id }}" 
+                            data-tipo="{{ o.tipo }}" 
+                            data-precio="{{ o.precio_en_divisas.valor if o.precio_en_divisas.valor is defined else o.precio_en_divisas }}" 
+                            data-cuotas="{{ o.nro_partes_cuotas }}" 
+                            data-montocuota="{{ o.cada_una_de_en_divisas }}"
+                            {% if inscripcion and inscripcion.id_oferta == o.id %}selected{% endif %}>
+                        {{ o.oferta_academica }} (${{ o.precio_en_divisas.valor if o.precio_en_divisas.valor is defined else o.precio_en_divisas }})
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <!-- Tarjeta de información de la Oferta -->
+                <div id="info_oferta" class="mt-3 p-3 bg-amber-50/60 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1 {% if not inscripcion %}hidden{% endif %}">
+                    <p><b>Tipo de Programa:</b> <span id="oferta_tipo"></span></p>
+                    <p><b>Precio Total:</b> $<span id="oferta_precio"></span> | <b>Cuotas:</b> <span id="oferta_cuotas"></span> de $<span id="oferta_montocuota"></span></p>
+                </div>
+            </div>
+
+            <!-- 3. ASIGNACIÓN DE PROFESOR -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">3. Seleccionar Profesor</label>
+                <select name="id_profesor" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
+                    <option value="" disabled {% if not inscripcion %}selected{% endif %}>-- Seleccione un profesor --</option>
+                    {% for p in profesores %}
+                    <option value="{{ p.id }}" {% if inscripcion and inscripcion.id_profesor == p.id %}selected{% endif %}>
+                        [{{ p.cedula }}] {{ p.nombres }} {{ p.apellidos }} - {{ p.area_conocimiento }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- 4. HORARIO, DURACIÓN Y FRECUENCIA -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Horario</label>
+                    <select name="id_horario" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
+                        <option value="" disabled {% if not inscripcion %}selected{% endif %}>-- Horario --</option>
+                        {% for h in horarios %}
+                        <option value="{{ h.Id }}" {% if inscripcion and inscripcion.id_horario == h.Id %}selected{% endif %}>{{ h.Horario }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Duración</label>
+                    <select name="id_duracion" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
+                        <option value="" disabled {% if not inscripcion %}selected{% endif %}>-- Duración --</option>
+                        {% for d in duraciones %}
+                        <option value="{{ d.Id }}" {% if inscripcion and inscripcion.id_duracion == d.Id %}selected{% endif %}>{{ d.Duracion }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Frecuencia</label>
+                    <select name="id_frecuencia" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500">
+                        <option value="" disabled {% if not inscripcion %}selected{% endif %}>-- Frecuencia --</option>
+                        {% for f in frecuencias %}
+                        <option value="{{ f.Id }}" {% if inscripcion and inscripcion.id_frecuencia == f.Id %}selected{% endif %}>{{ f.Frecuencia }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="pt-4 flex items-center justify-end space-x-3">
+                <a href="{{ url_for('inscripciones.index') }}" class="px-5 py-2.5 border border-slate-300 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 transition">Cancelar</a>
+                <button type="submit" id="btn_submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-md transition">
+                    {{ 'Actualizar Inscripción' if inscripcion else 'Completar Inscripción' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

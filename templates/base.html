@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}AppAlumnos - Sistema Académico{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='img/favicon.ico') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
+  <body class="h-full flex flex-col">
+    {% if session.get('usuario') %}
+    <!-- Header Principal (Abarca todo el ancho de la pantalla) -->
+    <header class="w-full bg-slate-900 text-white shadow-md sticky top-0 z-50">
+      <!-- Contenedor interno que controla el ancho máximo y previene que se vea apretado en tablets -->
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
+      >
+        <!-- Logo / Título de la App -->
+        <div class="flex items-center space-x-3">
+          <a
+            href="{{ url_for('dashboard.index') }}"
+            class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2"
+          >
+            🎓 <span class="hidden sm:inline">Sistema Académico</span>
+          </a>
+        </div>
+
+        <!-- Menú de navegación principal (Escritorio y Tablet) -->
+        <nav
+          class="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-medium"
+        >
+          <a
+            href="{{ url_for('dashboard.index') }}"
+            class="px-3 py-2 rounded-xl hover:bg-slate-800 transition"
+            >Dashboard</a
+          >
+          <a
+            href="{{ url_for('alumnos.index') }}"
+            class="px-3 py-2 rounded-xl hover:bg-slate-800 transition"
+            >Alumnos</a
+          >
+          <a
+            href="{{ url_for('ofertas.index') }}"
+            class="px-3 py-2 rounded-xl hover:bg-slate-800 transition"
+            >Ofertas</a
+          >
+          <a
+            href="{{ url_for('inscripciones.index') }}"
+            class="px-3 py-2 rounded-xl hover:bg-slate-800 transition"
+            >Inscripciones</a
+          >
+          <a
+            href="{{ url_for('reportes.index') }}"
+            class="px-3 py-2 rounded-xl hover:bg-slate-800 transition"
+            >Reportes</a
+          >
+
+          <!-- Menú Desplegable (Dropdown) de Catálogos -->
+          <div class="relative group">
+            <button
+              class="px-3 py-2 rounded-xl hover:bg-slate-800 transition flex items-center gap-1.5 focus:outline-none"
+            >
+              <span>📁 Catálogos</span>
+              <svg
+                class="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-200"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
+              </svg>
+            </button>
+
+            <!-- Contenedor flotante del Dropdown -->
+            <div
+              class="absolute left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-2xl shadow-xl py-2 hidden group-hover:block z-50"
+            >
+              <a
+                href="{{ url_for('catalogos.horarios_index') }}"
+                class="block px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition"
+                >🕒 Horarios</a
+              >
+              <a
+                href="{{ url_for('catalogos.duracion_index') }}"
+                class="block px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition"
+                >⏳ Duración</a
+              >
+              <a
+                href="{{ url_for('catalogos.frecuencia_index') }}"
+                class="block px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition"
+                >📅 Frecuencia</a
+              >
+            </div>
+          </div>
+        </nav>
+
+        <!-- Perfil / Botón de Salir (Escritorio) -->
+        <div class="hidden md:flex items-center space-x-3">
+          <span class="text-xs text-slate-400"
+            >👤 {{ session.get('usuario_nombre', 'Admin') }}</span
+          >
+          <a
+            href="{{ url_for('auth.logout') }}"
+            class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl transition"
+            >Salir</a
+          >
+        </div>
+
+        <!-- Botón Hamburguesa para Móvil y Tablets pequeñas -->
+        <div class="flex md:hidden">
+          <button
+            id="menu-btn"
+            class="p-2 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 focus:outline-none"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Menú Desplegable Móvil / Tablet -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-slate-800 border-t border-slate-700 px-4 pt-3 pb-4 space-y-2"
+      >
+        <a
+          href="{{ url_for('dashboard.index') }}"
+          class="block px-3 py-2 rounded-xl hover:bg-slate-700 text-sm font-medium"
+          >Dashboard</a
+        >
+        <a
+          href="{{ url_for('alumnos.index') }}"
+          class="block px-3 py-2 rounded-xl hover:bg-slate-700 text-sm font-medium"
+          >Alumnos</a
+        >
+        <a
+          href="{{ url_for('ofertas.index') }}"
+          class="block px-3 py-2 rounded-xl hover:bg-slate-700 text-sm font-medium"
+          >Ofertas</a
+        >
+        <a
+          href="{{ url_for('inscripciones.index') }}"
+          class="block px-3 py-2 rounded-xl hover:bg-slate-700 text-sm font-medium"
+          >Inscripciones</a
+        >
+        <a
+          href="{{ url_for('reportes.index') }}"
+          class="block px-3 py-2 rounded-xl hover:bg-slate-700 text-sm font-medium"
+          >Reportes</a
+        >
+
+        <!-- Subsección de Catálogos en Móvil / Tablet -->
+        <div class="pt-2 pb-1 border-t border-slate-700">
+          <p
+            class="px-3 text-xs font-bold uppercase tracking-wider text-slate-400 mb-1"
+          >
+            Catálogos
+          </p>
+          <a
+            href="{{ url_for('catalogos.horarios_index') }}"
+            class="block px-3 py-2 rounded-xl hover:bg-slate-700 text-sm font-medium text-slate-300 pl-6"
+            >🕒 Horarios</a
+          >
+          <a
+            href="{{ url_for('catalogos.duracion_index') }}"
+            class="block px-3 py-2 rounded-xl hover:bg-slate-700 text-sm font-medium text-slate-300 pl-6"
+            >⏳ Duración</a
+          >
+          <a
+            href="{{ url_for('catalogos.frecuencia_index') }}"
+            class="block px-3 py-2 rounded-xl hover:bg-slate-700 text-sm font-medium text-slate-300 pl-6"
+            >📅 Frecuencia</a
+          >
+        </div>
+
+        <div
+          class="pt-2 border-t border-slate-700 flex justify-between items-center"
+        >
+          <span class="text-xs text-slate-400"
+            >👤 {{ session.get('usuario_nombre', 'Admin') }}</span
+          >
+          <a
+            href="{{ url_for('auth.logout') }}"
+            class="px-3 py-1.5 bg-rose-600 text-white text-xs font-semibold rounded-xl"
+            >Salir</a
+          >
+        </div>
+      </div>
+    </header>
+    {% endif %}
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="space-y-2 mb-6">
+        {% for category, message in messages %} {% set bg_color =
+        'bg-emerald-100 text-emerald-800 border-emerald-200' if category ==
+        'success' else ('bg-rose-100 text-rose-800 border-rose-200' if category
+        == 'danger' else 'bg-amber-100 text-amber-800 border-amber-200') %}
+        <div
+          class="p-4 rounded-xl border text-sm font-medium shadow-sm {{ bg_color }} transition-all"
+        >
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %} {% block content %}{% endblock %}
+    </main>
+
+    <footer
+      class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500"
+    >
+      AppAlumnos &copy; 2026 — Clean Architecture & Domain-Driven Design
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+</html>
