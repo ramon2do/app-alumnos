@@ -9,6 +9,34 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  /* 1.5. Control por Clic del Dropdown Catálogos en Header (Solución definitiva para evitar que se cierre) */
+  const btnCatalogos = document.getElementById("btn-catalogos");
+  const menuCatalogos = document.getElementById("menu-catalogos");
+  const arrowCatalogos = document.getElementById("arrow-catalogos");
+  const containerCatalogos = document.getElementById(
+    "dropdown-catalogos-container",
+  );
+
+  if (btnCatalogos && menuCatalogos) {
+    btnCatalogos.addEventListener("click", function (e) {
+      e.stopPropagation();
+      menuCatalogos.classList.toggle("hidden");
+      if (arrowCatalogos) {
+        arrowCatalogos.classList.toggle("rotate-180");
+      }
+    });
+
+    // Cerrar al hacer clic fuera del desplegable
+    document.addEventListener("click", function (e) {
+      if (containerCatalogos && !containerCatalogos.contains(e.target)) {
+        menuCatalogos.classList.add("hidden");
+        if (arrowCatalogos) {
+          arrowCatalogos.classList.remove("rotate-180");
+        }
+      }
+    });
+  }
+
   /* 2. Lógica del Formulario de Inscripciones (Crear / Editar) */
   const nroCedulaInput = document.getElementById("nro_cedula");
   const tipoCedulaSelect = document.getElementById("tipo_cedula");
@@ -112,5 +140,36 @@ document.addEventListener("DOMContentLoaded", function () {
           .catch((err) => console.error("Error al buscar alumno:", err));
       }
     });
+  }
+
+  /* 3. Lógica del Formulario de Ofertas Académicas (Cálculo dinámico de cuotas) */
+  const inputPrecio = document.getElementById("precio_en_divisas");
+  const inputCuotas = document.getElementById("nro_partes_cuotas");
+  const inputCadaCuota = document.getElementById("cada_una_de_en_divisas");
+  const inputOcultoCuota = document.getElementById("input_oculto_cuota");
+
+  function calcularCuotasOferta() {
+    if (inputPrecio && inputCuotas && inputCadaCuota) {
+      const precio = parseFloat(inputPrecio.value) || 0;
+      const cuotas = parseInt(inputCuotas.value) || 1;
+
+      if (cuotas > 0) {
+        const valorCuota = (precio / cuotas).toFixed(2);
+        inputCadaCuota.value = valorCuota;
+        if (inputOcultoCuota) inputOcultoCuota.value = valorCuota;
+      } else {
+        inputCadaCuota.value = "0.00";
+        if (inputOcultoCuota) inputOcultoCuota.value = "0.00";
+      }
+    }
+  }
+
+  if (inputPrecio && inputCuotas) {
+    // Calcular inmediatamente al cargar (modo edición de ofertas)
+    calcularCuotasOferta();
+
+    // Escuchar cambios al escribir
+    inputPrecio.addEventListener("input", calcularCuotasOferta);
+    inputCuotas.addEventListener("input", calcularCuotasOferta);
   }
 });
