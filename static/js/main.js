@@ -148,29 +148,33 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputCadaCuota = document.getElementById("cada_una_de_en_divisas");
   const inputOcultoCuota = document.getElementById("input_oculto_cuota");
 
-  function calcularCuotasOferta() {
+  function calcularCuotasOferta(forzar = false) {
     if (inputPrecio && inputCuotas && inputCadaCuota) {
       const precio = parseFloat(inputPrecio.value) || 0;
       const cuotas = parseInt(inputCuotas.value) || 1;
 
       if (cuotas > 0) {
         const valorCuota = (precio / cuotas).toFixed(2);
-        inputCadaCuota.value = valorCuota;
-        if (inputOcultoCuota) inputOcultoCuota.value = valorCuota;
-      } else {
-        inputCadaCuota.value = "0.00";
-        if (inputOcultoCuota) inputOcultoCuota.value = "0.00";
+        // Solo recalcula automáticamente si se fuerza o si el campo de cuota está vacio/0.00
+        if (
+          forzar ||
+          !inputCadaCuota.value ||
+          inputCadaCuota.value === "0.00"
+        ) {
+          inputCadaCuota.value = valorCuota;
+          if (inputOcultoCuota) inputOcultoCuota.value = valorCuota;
+        }
       }
     }
   }
 
   if (inputPrecio && inputCuotas) {
-    // Calcular inmediatamente al cargar (modo edición de ofertas)
-    calcularCuotasOferta();
+    // Si al cargar los campos tienen valores pero el monto de cuota está vacío, calcularlo una vez
+    calcularCuotasOferta(false);
 
-    // Escuchar cambios al escribir
-    inputPrecio.addEventListener("input", calcularCuotasOferta);
-    inputCuotas.addEventListener("input", calcularCuotasOferta);
+    // Escuchar cambios al escribir manualmente en los inputs
+    inputPrecio.addEventListener("input", () => calcularCuotasOferta(true));
+    inputCuotas.addEventListener("input", () => calcularCuotasOferta(true));
   }
 
   /* 4. Lógica de Previsualización en Tiempo Real de Imágenes (Alumnos / Profesores) */

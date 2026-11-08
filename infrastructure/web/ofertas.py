@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from utils.decorators import login_required
 from infrastructure.container import container
+from domain.academico.value_objects.precio import Precio
 
 ofertas_bp = Blueprint('ofertas', __name__, url_prefix='/ofertas')
 
@@ -14,12 +15,16 @@ def index():
 def nuevo():
     if request.method == 'POST':
         try:
+            precio = float(request.form.get('precio_en_divisas') or 0)
+            nro_cuotas = int(request.form.get('nro_partes_cuotas') or 1)
+            valor_cuota = float(request.form.get('cada_una_de_en_divisas') or 0)
+
             container.crear_oferta_use_case().execute(
                 request.form.get('nombre'),
                 request.form.get('tipo'),
-                request.form.get('precio_en_divisas'),
-                request.form.get('nro_partes_cuotas'),
-                request.form.get('cada_una_de_en_divisas')
+                precio,
+                nro_cuotas,
+                valor_cuota
             )
             flash("Oferta académica registrada correctamente.", "success")
             return redirect(url_for('ofertas.index'))
@@ -39,11 +44,11 @@ def editar(id):
         
     if request.method == 'POST':
         try:
-            oferta.nombre = request.form.get('nombre')
+            oferta.oferta_academica = request.form.get('nombre')
             oferta.tipo = request.form.get('tipo')
-            oferta.precio_en_divisas = request.form.get('precio_en_divisas')
-            oferta.nro_partes_cuotas = request.form.get('nro_partes_cuotas')
-            oferta.cada_una_de_en_divisas = request.form.get('cada_una_de_en_divisas')
+            oferta.precio_en_divisas = Precio(float(request.form.get('precio_en_divisas') or 0))
+            oferta.nro_partes_cuotas = int(request.form.get('nro_partes_cuotas') or 1)
+            oferta.cada_una_de_en_divisas = float(request.form.get('cada_una_de_en_divisas') or 0)
 
             container.oferta_repo.actualizar(oferta)
             flash("Oferta académica actualizada correctamente.", "success")
