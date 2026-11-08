@@ -18,6 +18,7 @@ def index():
 def nuevo():
     if request.method == 'POST':
         try:
+            # CREACIÓN: Invoca al caso de uso que SÍ dispara las notificaciones (Correo y Whapi)
             container.crear_alumno_use_case().execute(
                 request.form.get('tipo_cedula'), request.form.get('nro_cedula'),
                 request.form.get('nombres'), request.form.get('apellidos'), request.form.get('genero'),
@@ -25,7 +26,7 @@ def nuevo():
                 guardar_archivo(request.files.get('foto_cedula'), 'cedula'),
                 guardar_archivo(request.files.get('foto_carnet'), 'carnet')
             )
-            flash("Alumno registrado correctamente.", "success")
+            flash("Alumno registrado correctamente y notificaciones enviadas.", "success")
             return redirect(url_for('alumnos.index'))
         except Exception as e: flash(str(e), "danger")
     return render_template('alumnos/form.html', alumno=None)
@@ -39,6 +40,7 @@ def editar(id):
         return redirect(url_for('alumnos.index'))
     if request.method == 'POST':
         try:
+            # EDICIÓN: Actualiza directamente en base de datos de forma SILENCIOSA (Sin notificaciones)
             alumno.tipo_cedula = request.form.get('tipo_cedula')
             alumno.nro_cedula = request.form.get('nro_cedula')
             alumno.nombres = request.form.get('nombres')

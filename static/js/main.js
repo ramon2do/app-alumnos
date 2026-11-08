@@ -172,4 +172,28 @@ document.addEventListener("DOMContentLoaded", function () {
     inputPrecio.addEventListener("input", calcularCuotasOferta);
     inputCuotas.addEventListener("input", calcularCuotasOferta);
   }
+
+  /* 4. Lógica de Previsualización en Tiempo Real de Imágenes (Alumnos / Profesores) */
+  function configurarPreviewImagen(inputId, previewId) {
+    const inputFile = document.getElementById(inputId);
+    const imagePreview = document.getElementById(previewId);
+
+    if (inputFile && imagePreview) {
+      inputFile.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            imagePreview.src = e.target.result;
+            imagePreview.classList.remove("hidden");
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  }
+
+  // Activar previews para cédula y carnet (empleados tanto en alumnos como en profesores)
+  configurarPreviewImagen("input_foto_cedula", "preview_cedula");
+  configurarPreviewImagen("input_foto_carnet", "preview_carnet");
 });

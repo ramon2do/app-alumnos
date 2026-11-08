@@ -23,5 +23,8 @@ class CrearAlumnoUseCase:
         raw_pass = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(8))
         u = self.usuario_repo.guardar(Usuario(None, f"{nombres} {apellidos}", Email(correo), generate_password_hash(raw_pass), Rol("alumno"), "Activo"))
         a = self.alumno_repo.guardar(Alumno(None, tipo_cedula, nro_cedula, nombres, apellidos, genero, fecha_nacimiento, WhatsApp(whatsapp), Email(correo), foto_cedula, foto_carnet, u.id))
+        
+        # Dispara el evento que ejecuta el correo (SMTP) y el WhatsApp (Whapi) simultáneamente
         AlumnoRegistradoHandler.handle(AlumnoRegistrado(a.id, a.nombre_completo, a.correo.value, a.whatsapp.value, a.correo.value, raw_pass))
+        
         return AlumnoDTO(a.id, a.tipo_cedula, a.nro_cedula, a.nombres, a.apellidos, a.genero, a.fecha_nacimiento, a.whatsapp.value, a.correo.value, a.foto_cedula, a.foto_carnet, a.id_usuario)

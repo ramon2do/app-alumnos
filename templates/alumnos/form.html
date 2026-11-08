@@ -59,26 +59,23 @@
                 </div>
             </div>
 
+            <!-- Sección de Archivos con Preview en Tiempo Real -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                <!-- Foto Cédula -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Foto de Cédula</label>
-                    {% if alumno and alumno.foto_cedula %}
-                    <div class="mb-3 space-y-2">
-                        <img src="{{ alumno.foto_cedula }}" alt="Cédula" class="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm">
-                        <div><a href="{{ alumno.foto_cedula }}" target="_blank" class="text-xs text-indigo-600 underline font-semibold">Abrir cédula en nueva pestaña</a></div>
+                    <div class="mb-3">
+                        <img id="preview_cedula" src="{{ alumno.foto_cedula if alumno and alumno.foto_cedula else '#' }}" alt="Preview Cédula" class="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm {% if not (alumno and alumno.foto_cedula) %}hidden{% endif %}">
                     </div>
-                    {% endif %}
-                    <input type="file" name="foto_cedula" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    <input type="file" name="foto_cedula" id="input_foto_cedula" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" onchange="previewImage(event, 'preview_cedula')">
                 </div>
+                <!-- Foto Carnet -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Foto Tipo Carnet</label>
-                    {% if alumno and alumno.foto_carnet %}
-                    <div class="mb-3 space-y-2">
-                        <img src="{{ alumno.foto_carnet }}" alt="Carnet" class="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm">
-                        <div><a href="{{ alumno.foto_carnet }}" target="_blank" class="text-xs text-indigo-600 underline font-semibold">Abrir carnet en nueva pestaña</a></div>
+                    <div class="mb-3">
+                        <img id="preview_carnet" src="{{ alumno.foto_carnet if alumno and alumno.foto_carnet else '#' }}" alt="Preview Carnet" class="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm {% if not (alumno and alumno.foto_carnet) %}hidden{% endif %}">
                     </div>
-                    {% endif %}
-                    <input type="file" name="foto_carnet" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    <input type="file" name="foto_carnet" id="input_foto_carnet" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" onchange="previewImage(event, 'preview_carnet')">
                 </div>
             </div>
 
