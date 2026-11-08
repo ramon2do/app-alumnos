@@ -27,8 +27,10 @@ def nuevo():
             container.crear_profesor_use_case().execute(
                 request.form.get('tipo_cedula'), request.form.get('nro_cedula'),
                 request.form.get('nombres'), request.form.get('apellidos'),
-                request.form.get('area_conocimiento'), request.form.get('genero'),
-                request.form.get('fecha_nacimiento'), request.form.get('whatsapp'),
+                request.form.get('area_conocimiento'), 
+                request.form.get('fecha_nacimiento'),
+                request.form.get('genero'),
+                request.form.get('whatsapp'),
                 request.form.get('correo'),
                 path_cedula, path_carnet
             )

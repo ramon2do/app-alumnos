@@ -29,9 +29,8 @@ def registro():
             correo = request.form.get('correo')
             password = request.form.get('password')
             
-            # Validaciones y creación mediante el contenedor de dependencias / casos de uso
-            # (Ajusta los parámetros según tu caso de uso de registro de operador/usuario)
-            container.usuario_repo.guardar(
+            # Instanciación posicional exacta que espera la entidad Usuario
+            nuevo_usuario = Usuario(
                 None, 
                 f"{nombres} {apellidos}", 
                 Email(correo), 
@@ -40,12 +39,14 @@ def registro():
                 "Activo"
             )
             
+            # Se pasa el objeto entidad completo al repositorio
+            container.usuario_repo.guardar(nuevo_usuario)
+            
             flash("¡Registro exitoso! Ya puedes iniciar sesión con tus credenciales.", "success")
             return redirect(url_for('auth.login'))
             
         except Exception as e:
             error_msg = str(e)
-            # Traducción de errores técnicos de SQLite / Unicidad a mensajes limpios y amigables
             if "UNIQUE constraint failed" in error_msg or "registrado" in error_msg.lower():
                 if "correo" in error_msg.lower():
                     mensaje = "⚠️ El correo electrónico ingresado ya se encuentra registrado en el sistema."
@@ -57,7 +58,6 @@ def registro():
                 mensaje = f"⚠️ {error_msg}"
             
             flash(mensaje, "danger")
-            # Re-renderiza pasando form_data para preservar todo lo que el usuario escribió
             return render_template('auth/registro.html', form_data=request.form)
             
     return render_template('auth/registro.html', form_data=None)
