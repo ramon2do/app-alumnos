@@ -24,15 +24,19 @@ def nuevo():
         path_carnet = guardar_archivo(f_carnet, 'carnet') if f_carnet and f_carnet.filename != '' else request.form.get('temp_foto_carnet', '')
 
         try:
+            # Orden estricto y correcto alineado con CrearProfesorUseCase.execute()
             container.crear_profesor_use_case().execute(
-                request.form.get('tipo_cedula'), request.form.get('nro_cedula'),
-                request.form.get('nombres'), request.form.get('apellidos'),
-                request.form.get('area_conocimiento'), 
-                request.form.get('fecha_nacimiento'),
-                request.form.get('genero'),
-                request.form.get('whatsapp'),
-                request.form.get('correo'),
-                path_cedula, path_carnet
+                request.form.get('tipo_cedula'),       # 1
+                request.form.get('nro_cedula'),        # 2
+                request.form.get('nombres'),           # 3
+                request.form.get('apellidos'),         # 4
+                request.form.get('genero'),            # 5 -> Género
+                request.form.get('fecha_nacimiento'),  # 6 -> Fecha de Nacimiento
+                request.form.get('area_conocimiento'), # 7 -> Área de Conocimiento
+                request.form.get('whatsapp'),          # 8
+                request.form.get('correo'),            # 9
+                path_cedula,                           # 10
+                path_carnet                            # 11
             )
             flash("Profesor registrado correctamente.", "success")
             return redirect(url_for('profesores.index'))
