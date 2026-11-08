@@ -1,28 +1,33 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from utils.decorators import login_required
 from infrastructure.container import container
-from domain.academico.value_objects.precio import Precio
 
 ofertas_bp = Blueprint('ofertas', __name__, url_prefix='/ofertas')
 
 @ofertas_bp.route('/')
 @login_required
-def index(): return render_template('ofertas/list.html', ofertas=container.listar_ofertas_use_case().execute())
+def index():
+    return render_template('ofertas/list.html', ofertas=container.listar_ofertas_use_case().execute())
 
-@ofertas_bp.route('/nueva', methods=['GET', 'POST'])
+@ofertas_bp.route('/nuevo', methods=['GET', 'POST'])
 @login_required
-def nueva():
+def nuevo():
     if request.method == 'POST':
         try:
             container.crear_oferta_use_case().execute(
-                request.form.get('oferta_academica'), request.form.get('tipo'),
-                float(request.form.get('precio_en_divisas', 0)), int(request.form.get('nro_partes_cuotas', 1)),
-                float(request.form.get('cada_una_de_en_divisas', 0))
+                request.form.get('nombre'),
+                request.form.get('tipo'),
+                request.form.get('precio_en_divisas'),
+                request.form.get('nro_partes_cuotas'),
+                request.form.get('cada_una_de_en_divisas')
             )
-            flash("Oferta académica registrada con éxito.", "success")
+            flash("Oferta académica registrada correctamente.", "success")
             return redirect(url_for('ofertas.index'))
-        except Exception as e: flash(str(e), "danger")
-    return render_template('ofertas/form.html', oferta=None)
+        except Exception as e:
+            flash(str(e), "danger")
+            return render_template('ofertas/form.html', oferta=None, form_data=request.form)
+            
+    return render_template('ofertas/form.html', oferta=None, form_data=None)
 
 @ofertas_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -31,18 +36,23 @@ def editar(id):
     if not oferta:
         flash("Oferta no encontrada.", "danger")
         return redirect(url_for('ofertas.index'))
+        
     if request.method == 'POST':
         try:
-            oferta.oferta_academica = request.form.get('oferta_academica')
+            oferta.nombre = request.form.get('nombre')
             oferta.tipo = request.form.get('tipo')
-            oferta.precio_en_divisas = Precio(float(request.form.get('precio_en_divisas', 0)))
-            oferta.nro_partes_cuotas = int(request.form.get('nro_partes_cuotas', 1))
-            oferta.cada_una_de_en_divisas = float(request.form.get('cada_una_de_en_divisas', 0))
+            oferta.precio_en_divisas = request.form.get('precio_en_divisas')
+            oferta.nro_partes_cuotas = request.form.get('nro_partes_cuotas')
+            oferta.cada_una_de_en_divisas = request.form.get('cada_una_de_en_divisas')
+
             container.oferta_repo.actualizar(oferta)
-            flash("Oferta actualizada correctamente.", "success")
+            flash("Oferta académica actualizada correctamente.", "success")
             return redirect(url_for('ofertas.index'))
-        except Exception as e: flash(str(e), "danger")
-    return render_template('ofertas/form.html', oferta=oferta)
+        except Exception as e:
+            flash(str(e), "danger")
+            return render_template('ofertas/form.html', oferta=oferta, form_data=request.form)
+            
+    return render_template('ofertas/form.html', oferta=oferta, form_data=None)
 
 @ofertas_bp.route('/eliminar/<int:id>', methods=['POST'])
 @login_required

@@ -23,31 +23,44 @@ def login():
 def registro():
     if request.method == 'POST':
         try:
-            nombre = request.form.get('nombre')
+            # Captura de datos del formulario de registro de operador/usuario
+            nombres = request.form.get('nombres')
+            apellidos = request.form.get('apellidos')
             correo = request.form.get('correo')
-            contrasena = request.form.get('contrasena')
+            password = request.form.get('password')
             
-            # Validar si el correo ya existe
-            if container.usuario_repo.buscar_por_correo(correo):
-                flash("El correo electrónico ya está registrado.", "danger")
-                return redirect(url_for('auth.registro'))
-            
-            # Crear usuario con rol operador por defecto
-            contrasena_hash = generate_password_hash(contrasena)
-            nuevo_usuario = Usuario(
-                id=None,
-                nombre=nombre,
-                correo=Email(correo),
-                contrasena_hash=contrasena_hash,
-                tipo_usuario=Rol("operador"),
-                estatus="Activo"
+            # Validaciones y creación mediante el contenedor de dependencias / casos de uso
+            # (Ajusta los parámetros según tu caso de uso de registro de operador/usuario)
+            container.usuario_repo.guardar(
+                None, 
+                f"{nombres} {apellidos}", 
+                Email(correo), 
+                generate_password_hash(password), 
+                Rol("operador"), 
+                "Activo"
             )
-            container.usuario_repo.guardar(nuevo_usuario)
-            flash("¡Registro exitoso! Ahora puedes iniciar sesión como Operador.", "success")
+            
+            flash("¡Registro exitoso! Ya puedes iniciar sesión con tus credenciales.", "success")
             return redirect(url_for('auth.login'))
+            
         except Exception as e:
-            flash(f"Error en el registro: {e}", "danger")
-    return render_template('auth/registro.html')
+            error_msg = str(e)
+            # Traducción de errores técnicos de SQLite / Unicidad a mensajes limpios y amigables
+            if "UNIQUE constraint failed" in error_msg or "registrado" in error_msg.lower():
+                if "correo" in error_msg.lower():
+                    mensaje = "⚠️ El correo electrónico ingresado ya se encuentra registrado en el sistema."
+                elif "cedula" in error_msg.lower():
+                    mensaje = "⚠️ La cédula de identidad ingresada ya pertenece a otro usuario."
+                else:
+                    mensaje = "⚠️ Ya existe un usuario registrado con estos datos únicos."
+            else:
+                mensaje = f"⚠️ {error_msg}"
+            
+            flash(mensaje, "danger")
+            # Re-renderiza pasando form_data para preservar todo lo que el usuario escribió
+            return render_template('auth/registro.html', form_data=request.form)
+            
+    return render_template('auth/registro.html', form_data=None)
 
 @auth_bp.route('/logout')
 def logout():

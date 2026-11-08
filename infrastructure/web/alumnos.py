@@ -17,19 +17,41 @@ def index():
 @login_required
 def nuevo():
     if request.method == 'POST':
+        f_cedula = request.files.get('foto_cedula')
+        f_carnet = request.files.get('foto_carnet')
+        
+        path_cedula = guardar_archivo(f_cedula, 'cedula') if f_cedula and f_cedula.filename != '' else request.form.get('temp_foto_cedula', '')
+        path_carnet = guardar_archivo(f_carnet, 'carnet') if f_carnet and f_carnet.filename != '' else request.form.get('temp_foto_carnet', '')
+
         try:
-            # CREACIÓN: Invoca al caso de uso que SÍ dispara las notificaciones (Correo y Whapi)
             container.crear_alumno_use_case().execute(
                 request.form.get('tipo_cedula'), request.form.get('nro_cedula'),
                 request.form.get('nombres'), request.form.get('apellidos'), request.form.get('genero'),
                 request.form.get('fecha_nacimiento'), request.form.get('whatsapp'), request.form.get('correo'),
-                guardar_archivo(request.files.get('foto_cedula'), 'cedula'),
-                guardar_archivo(request.files.get('foto_carnet'), 'carnet')
+                path_cedula, path_carnet
             )
             flash("Alumno registrado correctamente y notificaciones enviadas.", "success")
             return redirect(url_for('alumnos.index'))
-        except Exception as e: flash(str(e), "danger")
-    return render_template('alumnos/form.html', alumno=None)
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "unique constraint failed" in error_msg or "registrado" in error_msg or "duplicado" in error_msg:
+                if "correo" in error_msg or "email" in error_msg:
+                    mensaje = "⚠️ El correo electrónico ingresado ya se encuentra registrado por otro usuario. Por favor, escribe uno diferente."
+                elif "cedula" in error_msg or "nro_cedula" in error_msg:
+                    mensaje = "⚠️ La cédula de identidad ingresada ya pertenece a otro registro en el sistema."
+                else:
+                    mensaje = f"⚠️ Ya existe un registro con estos datos únicos ({str(e)})."
+            else:
+                mensaje = f"⚠️ {str(e)}"
+            
+            flash(mensaje, "danger")
+            temp_alumno = type('TempAlumno', (object,), {
+                'foto_cedula': path_cedula,
+                'foto_carnet': path_carnet
+            })()
+            return render_template('alumnos/form.html', alumno=temp_alumno, form_data=request.form)
+            
+    return render_template('alumnos/form.html', alumno=None, form_data=None)
 
 @alumnos_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -38,9 +60,9 @@ def editar(id):
     if not alumno:
         flash("Alumno no encontrado.", "danger")
         return redirect(url_for('alumnos.index'))
+        
     if request.method == 'POST':
         try:
-            # EDICIÓN: Actualiza directamente en base de datos de forma SILENCIOSA (Sin notificaciones)
             alumno.tipo_cedula = request.form.get('tipo_cedula')
             alumno.nro_cedula = request.form.get('nro_cedula')
             alumno.nombres = request.form.get('nombres')
@@ -61,8 +83,22 @@ def editar(id):
             container.alumno_repo.actualizar(alumno)
             flash("Alumno actualizado correctamente.", "success")
             return redirect(url_for('alumnos.index'))
-        except Exception as e: flash(str(e), "danger")
-    return render_template('alumnos/form.html', alumno=alumno)
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "unique constraint failed" in error_msg or "registrado" in error_msg or "duplicado" in error_msg:
+                if "correo" in error_msg or "email" in error_msg:
+                    mensaje = "⚠️ El correo electrónico ingresado ya se encuentra registrado por otro usuario."
+                elif "cedula" in error_msg or "nro_cedula" in error_msg:
+                    mensaje = "⚠️ La cédula de identidad ingresada ya pertenece a otro registro."
+                else:
+                    mensaje = f"⚠️ Ya existe un registro con estos datos únicos ({str(e)})."
+            else:
+                mensaje = f"⚠️ {str(e)}"
+            
+            flash(mensaje, "danger")
+            return render_template('alumnos/form.html', alumno=alumno, form_data=request.form)
+            
+    return render_template('alumnos/form.html', alumno=alumno, form_data=None)
 
 @alumnos_bp.route('/eliminar/<int:id>', methods=['POST'])
 @login_required
