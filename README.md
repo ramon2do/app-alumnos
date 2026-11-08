@@ -4,35 +4,44 @@ Plataforma web de gestión académica integral y arquitectura limpia (DDD / Onio
 
 ## 🌐 Enlaces Oficiales y Despliegue
 
-* **Sitio Web en Vivo (PythonAnywhere):** <https://ramon2do.pythonanywhere.com>
-* **Repositorio Público en GitHub:** <https://github.com/ramon2do/app-alumnos>
+- **Sitio Web en Vivo (PythonAnywhere):** <https://ramon2do.pythonanywhere.com>
+- **Repositorio Público en GitHub:** <https://github.com/ramon2do/app-alumnos>
 
 ## 🚀 Características Principales
 
-* **Arquitectura Limpia & DDD (Domain-Driven Design):**
-  * Separación estricta por capas: **Domain** (entidades, objetos de valor y repositorios), **Application** (casos de uso y DTOs), **Infrastructure** (base de datos SQLite, controladores Flask y servicios) y **Presentation** (plantillas Jinja2 y Tailwind CSS).
-  * Inyección de dependencias centralizada mediante `container` de la infraestructura.
-* **Diseño UI/UX Responsivo y Moderno:**
-  * Interfaz fluida basada en **Tailwind CSS** con paleta en tonos slate e índigo, completamente adaptable a dispositivos móviles, tablets y escritorios.
-  * Menú de navegación principal con menú desplegable (*dropdown*) para la gestión rápida de catálogos y contenedor adaptativo `w-full` en el header.
-* **Gestión Completa de Alumnos y Profesores:**
-  * Búsqueda dinámica vía **AJAX (fetch API)** por tipo y número de cédula al inscribir.
-  * Subida y almacenamiento seguro de fotografías (`Foto_Cédula` y `Foto_Carnet`).
-  * Integración con Value Objects para correo electrónico (`Correo`) y WhatsApp (`WhatsApp`).
-  * **Preservación de Estado ante Errores:** Al ocurrir un error de validación o unicidad (ej. cédula o correo duplicado), los datos del formulario, las opciones seleccionadas y las imágenes subidas temporalmente **no se borran**, permitiendo al usuario corregir de inmediato.
-* **Ofertas Académicas Dinámicas:**
-  * Registro de Cursos, Talleres y Diplomados con precios en divisas, número de partes/cuotas y cálculo automático del monto individual por cuota.
-* **Gestión de Inscripciones (Registro y Edición):**
-  * Proceso interactivo con precarga instantánea de datos de alumno y detalles de oferta (precio, cuotas, tipo de programa).
-  * Soporte completo para **Crear** y **Modificar/Editar** inscripciones existentes manteniendo la sincronía con los catálogos.
-* **Generación Dinámica de Reportes:**
-  * **PDF (ReportLab):** Reporte formal por oferta académica incluyendo fotografías de carnet de los alumnos inscritos y encabezados estilizados.
-  * **Excel (OpenPyxl):** Exportación detallada de nóminas con fotos embebidas y formatos de celda.
-  * Nombres de archivo generados dinámicamente según el nombre de la oferta académica (ej. `Inscritos_Diplomado_de_Python.pdf`).
+- **Arquitectura Limpia & DDD (Domain-Driven Design):**
+  - Separación estricta por capas: **Domain** (entidades, objetos de valor y repositorios), **Application** (casos de uso y DTOs), **Infrastructure** (base de datos SQLite, controladores Flask y servicios) y **Presentation** (plantillas Jinja2 y Tailwind CSS).
+  - Inyección de dependencias centralizada mediante `container` de la infraestructura.
+- **Diseño UI/UX Responsivo y Moderno:**
+  - Interfaz fluida basada en **Tailwind CSS** con paleta en tonos slate e índigo, completamente adaptable a dispositivos móviles, tablets y escritorios.
+  - Menú de navegación principal con menú desplegable (_dropdown_) para la gestión rápida de catálogos y contenedor adaptativo `w-full` en el header.
+- **Gestión Completa de Alumnos y Profesores:**
+  - Búsqueda dinámica vía **AJAX (fetch API)** por tipo y número de cédula al inscribir.
+  - Subida y almacenamiento seguro de fotografías (`Foto_Cédula` y `Foto_Carnet`).
+  - Integración con Value Objects para correo electrónico (`Correo`) y WhatsApp (`WhatsApp`).
+  - **Preservación de Estado ante Errores:** Al ocurrir un error de validación o unicidad (ej. cédula o correo duplicado), los datos del formulario, las opciones seleccionadas y las imágenes subidas temporalmente **no se borran**, permitiendo al usuario corregir de inmediato.
+- **Ofertas Académicas Dinámicas:**
+  - Registro de Cursos, Talleres y Diplomados con precios en divisas, número de partes/cuotas y cálculo automático del monto individual por cuota.
+- **Gestión de Inscripciones (Registro y Edición):**
+  - Proceso interactivo con precarga instantánea de datos de alumno y detalles de oferta (precio, cuotas, tipo de programa).
+  - Soporte completo para **Crear** y **Modificar/Editar** inscripciones existentes manteniendo la sincronía con los catálogos.
+- **Generación Dinámica de Reportes:**
+  - **PDF (ReportLab):** Reporte formal por oferta académica incluyendo fotografías de carnet de los alumnos inscritos y encabezados estilizados.
+  - **Excel (OpenPyxl):** Exportación detallada de nóminas con fotos embebidas y formatos de celda.
+  - Nombres de archivo generados dinámicamente según el nombre de la oferta académica (ej. `Inscritos_Diplomado_de_Python.pdf`).
+
+## 📋 Credenciales de Acceso por Defecto
+
+El sistema inicializa automáticamente una cuenta de administrador predeterminada la primera vez que se ejecuta la aplicación:
+
+- **Correo:** `admin@appalumnos.com` _(configurable mediante `.env`)_
+- **Contraseña:** `TuPasswordSeguro123` _(configurable mediante `.env`)_
+
+> **Nota para Operadores Nuevos:** Si un nuevo operador o usuario administrativo requiere acceso al sistema, debe dirigirse a la vista de **Registro** en la plataforma para crear su cuenta previa al inicio de sesión.
 
 ## ⚙️ Configuración del Entorno (`.env`)
 
-El proyecto utiliza un archivo de configuración de entorno para gestionar variables sensibles, credenciales de correo SMTP y pasarelas de mensajería (Whapi). 
+El proyecto utiliza un archivo de configuración de entorno para gestionar variables sensibles, credenciales de correo SMTP y pasarelas de mensajería (Whapi).
 
 1. En la raíz del proyecto, localiza el archivo de ejemplo **`.env.example`**.
 2. Duplica o renómbralo a **`.env`**:
@@ -40,16 +49,17 @@ El proyecto utiliza un archivo de configuración de entorno para gestionar varia
    cp .env.example .env
    ```
 3. Abre el archivo `.env` y configura tus propias credenciales y parámetros de integración:
+
    ```env
    SECRET_KEY=tu_clave_secreta_super_segura
    DATABASE_PATH=bdalumnos.db
-   
+
    # Configuración de Servidor de Correo SMTP (para notificaciones a alumnos/profesores)
    SMTP_SERVER=smtp.tuservidor.com
    SMTP_PORT=587
    SMTP_USER=tu_correo@dominio.com
    SMTP_PASSWORD=tu_contraseña_smtp
-   
+
    # Configuración de la API de WhatsApp (Whapi) para envío de mensajes automáticos
    WHAPI_TOKEN=tu_token_api_whapi_aqui
    WHAPI_ENDPOINT=https://gate.whapi.cloud/messages/text
@@ -117,7 +127,7 @@ La base de datos relacional SQLite está totalmente normalizada y compuesta por 
    ```bash
    python app.py
    ```
-   *(La aplicación iniciará automáticamente el servidor de desarrollo y sincronizará la base de datos `bdalumnos.db`).*
+   _(La aplicación iniciará automáticamente el servidor de desarrollo y sincronizará la base de datos `bdalumnos.db`)._
 5. Abre tu navegador e ingresa a la dirección: **`http://127.0.0.1:5000`**.
 
 ## ☁️ Despliegue en PythonAnywhere
@@ -171,6 +181,6 @@ La aplicación debe estructurarse estrictamente bajo los principios de Arquitect
 
 ## 📞 Datos de Contacto y Soporte
 
-* **Plataforma:** AppAlumnos — Sistema de Gestión Académica
-* **Despliegue Web:** <https://ramon2do.pythonanywhere.com>
-* **Código Fuente:** <https://github.com/ramon2do/app-alumnos>
+- **Plataforma:** AppAlumnos — Sistema de Gestión Académica
+- **Despliegue Web:** <https://ramon2do.pythonanywhere.com>
+- **Código Fuente:** <https://github.com/ramon2do/app-alumnos>
